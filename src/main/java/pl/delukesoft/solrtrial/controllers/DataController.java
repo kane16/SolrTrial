@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import pl.delukesoft.solrtrial.models.Image;
 import pl.delukesoft.solrtrial.models.Product;
+import pl.delukesoft.solrtrial.repositories.ImageRepository;
 import pl.delukesoft.solrtrial.repositories.ProductRepository;
 
 import java.util.Collections;
@@ -18,16 +19,20 @@ public class DataController {
     @Autowired
     ProductRepository productRepository;
 
+    @Autowired
+    ImageRepository imageRepository;
+
     @GetMapping("/getSolrDataSumPage")
     public List<Product> getData(){
-        return productRepository.findByName("nowy");
+        List<Product> products =  productRepository.findByName("nowy");
+        products.forEach(product -> product.setImages(imageRepository.findByProductId(product.getId())));
+        return products;
     }
 
     @GetMapping("/putSolrData")
     public boolean setData(){
-        Image image = new Image("1", "white");
-        Product product = new Product("1", "nowy", 3, null);
-        product.setImages(Collections.singletonList(image));
+        Image image = new Image("1", "1", "red");
+        Product product = new Product("1", "nowy", 3, Collections.singletonList(image));
         productRepository.save(product);
         return true;
     }
